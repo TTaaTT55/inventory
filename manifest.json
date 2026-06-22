@@ -1,0 +1,18 @@
+{
+  "name": "연구소 재고 비교",
+  "short_name": "재고비교",
+  "description": "ERP 마감 데이터와 누적관리 시트를 비교하는 앱",
+  "start_url": "/inventory/index.html",
+  "scope": "/inventory/",
+  "display": "standalone",
+  "background_color": "#F0F2F5",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
