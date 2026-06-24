@@ -8,88 +8,93 @@
 <meta name="theme-color" content="#2563EB">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
   :root {
-    --bg: #F0F2F5; --surface: #FFFFFF; --surface2: #F7F8FA;
-    --border: #E2E6EA; --primary: #2563EB; --primary-light: #EFF6FF;
-    --danger: #DC2626; --danger-light: #FEF2F2;
-    --success: #16A34A; --success-light: #F0FDF4;
-    --warning: #D97706;
-    --purple: #7C3AED; --purple-light: #F5F3FF;
-    --text: #111827; --text2: #6B7280; --text3: #9CA3AF;
+    --bg:#F0F2F5; --surface:#FFFFFF; --surface2:#F7F8FA;
+    --border:#E2E6EA; --primary:#2563EB; --primary-light:#EFF6FF;
+    --danger:#DC2626; --danger-light:#FEF2F2;
+    --success:#16A34A; --success-light:#F0FDF4;
+    --warning:#D97706;
+    --purple:#7C3AED; --purple-light:#F5F3FF;
+    --text:#111827; --text2:#6B7280; --text3:#9CA3AF;
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 28px 20px; }
-  .container { max-width: 1100px; margin: 0 auto; }
-  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-  .ai-badge { background: linear-gradient(135deg,#6366f1,#2563eb); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
-  .subtitle { font-size: 12px; color: var(--text2); margin-bottom: 24px; line-height: 1.7; }
-
-  .upload-zone { border: 2.5px dashed var(--border); border-radius: 14px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface); margin-bottom: 16px; position: relative; }
-  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-zone:hover, .upload-zone.drag { border-color: var(--primary); background: var(--primary-light); }
-  .upload-zone.loaded { border-style: solid; border-color: var(--success); background: var(--success-light); }
-  .upload-icon { font-size: 36px; margin-bottom: 12px; }
-  .upload-zone h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-  .upload-zone p { font-size: 12.5px; color: var(--text2); }
-  .file-loaded { font-size: 13px; font-weight: 700; color: var(--success); margin-top: 8px; }
-
-  .sheet-config { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; display: none; }
-  .sheet-config h3 { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
-  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .config-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
-  .config-group select { width: 100%; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; background: var(--surface); }
-  .config-group select:focus { border-color: var(--primary); }
-  .config-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-  .run-btn { width: 100%; padding: 14px; border-radius: 10px; background: var(--primary); color: #fff; border: none; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .18s; box-shadow: 0 2px 8px rgba(37,99,235,.2); margin-bottom: 24px; display: none; }
-  .run-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
-
-  .logic-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 16px; margin-bottom: 16px; font-size: 12px; color: var(--text2); line-height: 2.2; display: none; }
-  .chip { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin: 0 2px; }
-  .chip-blue { background: var(--primary-light); color: var(--primary); }
-  .chip-purple { background: var(--purple-light); color: var(--purple); }
-
-  .summary-grid { display: none; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
-  .stat-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all .15s; }
-  .stat-card:hover { border-color: var(--primary); transform: translateY(-1px); }
-  .stat-card.active { border-color: var(--primary); background: var(--primary-light); }
-  .stat-card .num { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-  .stat-card .lbl { font-size: 11.5px; color: var(--text2); margin-top: 4px; }
-  .stat-card.red .num { color: var(--danger); }
-  .stat-card.orange .num { color: var(--warning); }
-  .stat-card.green .num { color: var(--success); }
-  .stat-card.gray .num { color: var(--text2); }
-
-  .filter-bar { display: none; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .filter-bar input { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; width: 260px; outline: none; }
-  .filter-bar input:focus { border-color: var(--primary); }
-  .export-btn { margin-left: auto; padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--primary); background: var(--surface); color: var(--primary); font-size: 12px; font-weight: 600; cursor: pointer; }
-  .export-btn:hover { background: var(--primary-light); }
-  .reset-btn { padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text2); font-size: 12px; font-weight: 600; cursor: pointer; }
-  .reset-btn:hover { border-color: var(--danger); color: var(--danger); }
-
-  .table-wrap { display: none; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .table-info { padding: 9px 16px; font-size: 12px; color: var(--text2); background: var(--surface2); border-bottom: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: var(--surface2); padding: 10px 16px; font-size: 11px; font-weight: 700; color: var(--text2); text-align: left; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1.5px solid var(--border); }
-  td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--surface2); }
-  .mono { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text2); }
-  .qty { font-family: 'Courier New', monospace; font-weight: 700; font-size: 13px; }
-  .badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
-  .badge-diff { background: var(--danger-light); color: var(--danger); }
-  .badge-erp  { background: #FEF9C3; color: #92400E; }
-  .badge-mgmt { background: #F3F4F6; color: #4B5563; }
-  .badge-same { background: var(--success-light); color: var(--success); }
-  .match-chip { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
-  .match-code { background: var(--primary-light); color: var(--primary); }
-  .match-name { background: var(--purple-light); color: var(--purple); }
-  .diff-neg { color: var(--danger); font-family: monospace; font-weight: 700; }
-  .diff-pos { color: var(--success); font-family: monospace; font-weight: 700; }
-  .empty { text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
-  .error-msg { background: var(--danger-light); border: 1.5px solid #FECACA; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--danger); margin-bottom: 16px; display: none; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:24px 20px; }
+  .container { max-width:1100px; margin:0 auto; }
+  .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  h1 { font-size:20px; font-weight:800; letter-spacing:-0.5px; }
+  .ai-badge { background:linear-gradient(135deg,#6366f1,#2563eb); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
+  .subtitle { font-size:12px; color:var(--text2); margin-bottom:20px; line-height:1.7; }
+  .mgmt-banner { background:var(--success-light); border:1.5px solid #BBF7D0; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+  .mgmt-banner .left { font-size:13px; color:var(--success); font-weight:600; }
+  .mgmt-banner .right { font-size:11.5px; color:var(--text2); }
+  .card { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
+  .card-label { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
+  .card h2 { font-size:14px; font-weight:700; margin-bottom:12px; }
+  .drop-zone { border:2px dashed var(--border); border-radius:8px; padding:28px 16px; text-align:center; cursor:pointer; transition:all .18s; background:var(--surface2); position:relative; overflow:hidden; }
+  .drop-zone input[type=file] { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:10; }
+  .drop-zone:hover { border-color:var(--primary); background:var(--primary-light); }
+  .drop-zone.loaded { border-style:solid; border-color:var(--success); background:var(--success-light); }
+  .dicon { font-size:28px; margin-bottom:8px; }
+  .fname { font-size:12px; font-weight:700; color:var(--success); margin-top:6px; }
+  .hint { font-size:11.5px; color:var(--text3); margin-top:10px; line-height:1.8; }
+  .run-wrap { text-align:center; margin:14px 0; }
+  .run-btn { padding:13px 48px; font-size:15px; font-weight:700; border-radius:10px; background:var(--primary); color:#fff; border:none; cursor:pointer; transition:all .18s; box-shadow:0 2px 8px rgba(37,99,235,.2); }
+  .run-btn:hover:not(:disabled) { background:#1d4ed8; transform:translateY(-1px); }
+  .run-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+  .logic-box { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:10px 16px; margin-bottom:14px; font-size:12px; color:var(--text2); line-height:2.2; display:none; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; margin:0 2px; }
+  .chip-blue { background:var(--primary-light); color:var(--primary); }
+  .chip-purple { background:var(--purple-light); color:var(--purple); }
+  .amount-section { display:none; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
+  .amount-section h3 { font-size:13px; font-weight:700; margin-bottom:14px; }
+  .amount-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
+  .ac { border-radius:10px; padding:14px 16px; }
+  .ac .lbl { font-size:11px; font-weight:600; color:var(--text2); margin-bottom:6px; }
+  .ac .val { font-size:18px; font-weight:800; font-family:'Courier New',monospace; }
+  .ac .cnt { font-size:11px; color:var(--text3); margin-top:4px; }
+  .ac-p { background:#EFF6FF; border:1.5px solid #BFDBFE; } .ac-p .val { color:#1D4ED8; }
+  .ac-r { background:#F0FDF4; border:1.5px solid #BBF7D0; } .ac-r .val { color:#15803D; }
+  .ac-s { background:#FEF9C3; border:1.5px solid #FDE68A; } .ac-s .val { color:#92400E; }
+  .ac-total { background:var(--surface2); border:1.5px solid var(--border); grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-radius:10px; }
+  .ac-total .tl { font-size:13px; font-weight:700; }
+  .ac-total .tv { font-size:20px; font-weight:800; font-family:'Courier New',monospace; color:var(--primary); }
+  .summary-grid { display:none; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px; }
+  .stat-card { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:14px 16px; cursor:pointer; transition:all .15s; }
+  .stat-card:hover { border-color:var(--primary); transform:translateY(-1px); }
+  .stat-card.active { border-color:var(--primary); background:var(--primary-light); }
+  .stat-card .num { font-size:28px; font-weight:800; letter-spacing:-1px; }
+  .stat-card .lbl { font-size:11.5px; color:var(--text2); margin-top:4px; }
+  .stat-card.red .num { color:var(--danger); }
+  .stat-card.orange .num { color:var(--warning); }
+  .stat-card.gray .num { color:var(--text2); }
+  .filter-bar { display:none; align-items:center; gap:10px; margin-bottom:12px; }
+  .filter-bar input { padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; width:260px; outline:none; }
+  .filter-bar input:focus { border-color:var(--primary); }
+  .export-btn { margin-left:auto; padding:8px 16px; border-radius:8px; border:1.5px solid var(--primary); background:var(--surface); color:var(--primary); font-size:12px; font-weight:600; cursor:pointer; }
+  .export-btn:hover { background:var(--primary-light); }
+  .reset-btn { padding:8px 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface); color:var(--text2); font-size:12px; font-weight:600; cursor:pointer; }
+  .reset-btn:hover { border-color:var(--danger); color:var(--danger); }
+  .table-wrap { display:none; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; overflow:hidden; }
+  .table-info { padding:9px 16px; font-size:12px; color:var(--text2); background:var(--surface2); border-bottom:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; }
+  th { background:var(--surface2); padding:10px 16px; font-size:11px; font-weight:700; color:var(--text2); text-align:left; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1.5px solid var(--border); }
+  td { padding:11px 16px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--surface2); }
+  .mono { font-family:'Courier New',monospace; font-size:12px; color:var(--text2); }
+  .qty { font-family:'Courier New',monospace; font-weight:700; font-size:13px; }
+  .badge { display:inline-flex; align-items:center; padding:2px 9px; border-radius:20px; font-size:11.5px; font-weight:700; white-space:nowrap; }
+  .badge-diff { background:var(--danger-light); color:var(--danger); }
+  .badge-erp  { background:#FEF9C3; color:#92400E; }
+  .badge-mgmt { background:#F3F4F6; color:#4B5563; }
+  .badge-same { background:var(--success-light); color:var(--success); }
+  .match-chip { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-left:5px; vertical-align:middle; }
+  .match-code { background:var(--primary-light); color:var(--primary); }
+  .match-name { background:var(--purple-light); color:var(--purple); }
+  .diff-neg { color:var(--danger); font-family:monospace; font-weight:700; }
+  .diff-pos { color:var(--success); font-family:monospace; font-weight:700; }
+  .empty { text-align:center; padding:48px; color:var(--text3); font-size:14px; }
+  .error-msg { background:var(--danger-light); border:1.5px solid #FECACA; border-radius:10px; padding:12px 16px; font-size:13px; color:var(--danger); margin-bottom:14px; display:none; }
 </style>
 </head>
 <body>
@@ -98,45 +103,67 @@
     <h1>📦 연구소 재고 비교 앱</h1>
     <span class="ai-badge">✦ 자동 분석</span>
   </div>
-  <p class="subtitle">
-    구글 드라이브에서 XLSX 파일을 다운로드한 후 아래에 끌어다 놓으세요.<br>
-    비교 조건: <b>ERP등록(O) 필터</b> → <b>품목코드 우선 매칭</b> → <b>품명 fallback 매칭</b> → <b>수량 비교</b>
-  </p>
+  <p class="subtitle">ERP 비교 데이터 파일을 업로드하면 누적관리 시트와 자동으로 비교합니다.</p>
 
-  <div class="upload-zone" id="uploadZone">
-    <input type="file" id="fileInput" accept=".xlsx,.xls">
-    <div class="upload-icon" id="uploadIcon">📂</div>
-    <h3 id="uploadTitle">XLSX 파일을 끌어다 놓거나 클릭하여 선택</h3>
-    <p id="uploadDesc">구글 드라이브 → 파일 → 다운로드 → Microsoft Excel(.xlsx)</p>
-    <div class="file-loaded" id="fileLoaded"></div>
+  <div class="mgmt-banner">
+    <div class="left">✅ 누적관리 데이터 로드 완료</div>
+    <div class="right">📋 <b>06.30 연구소 재고(통합본)_260630</b> &nbsp;|&nbsp; ERP등록(O) <b>112개</b> 품목</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Step 1</div>
+    <h2>📂 ERP 비교 데이터 파일 업로드</h2>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="erpFile" accept=".xlsx,.xls,.csv">
+      <div class="dicon" id="dropIcon">📄</div>
+      <p id="dropText">클릭하거나 파일을 끌어다 놓으세요 (.xlsx / .xls / .csv)</p>
+      <div class="fname" id="dropFname"></div>
+    </div>
+    <div class="hint">
+      ERP 파일 컬럼 &nbsp;→&nbsp;
+      <b>A열</b>: NO &nbsp;|&nbsp; <b>B열</b>: 품목구분 &nbsp;|&nbsp;
+      <b>F열</b>: 품목코드 &nbsp;|&nbsp; <b>G열</b>: 품목명 &nbsp;|&nbsp;
+      <b>I열</b>: 수량 &nbsp;|&nbsp; <b>K열</b>: 금액
+    </div>
   </div>
 
   <div class="error-msg" id="errorMsg"></div>
 
-  <div class="sheet-config" id="sheetConfig">
-    <h3>⚙️ 시트 설정 확인</h3>
-    <div class="config-grid">
-      <div class="config-group">
-        <label>📋 누적관리 시트</label>
-        <select id="mgmtSheet"></select>
-        <div class="config-note">자동 감지: 이름 끝 날짜(_YYMMDD) 기준 최신 시트</div>
-      </div>
-      <div class="config-group">
-        <label>🖥 ERP 비교 데이터 시트</label>
-        <select id="erpSheet"></select>
-        <div class="config-note">자동 감지: "비교 데이터" 포함 시트</div>
-      </div>
-    </div>
+  <div class="run-wrap">
+    <button class="run-btn" id="runBtn" onclick="runCompare()" disabled>🔍 재고 비교 분석 실행</button>
   </div>
-
-  <button class="run-btn" id="runBtn" onclick="runCompare()">🔍 재고 비교 분석 실행</button>
 
   <div class="logic-box" id="logicBox">
     ✅ 적용 조건:
-    <span class="chip chip-blue">① ERP등록여부 = O (G열)</span>
+    <span class="chip chip-blue">① 누적관리 ERP등록여부 = O</span>
     <span class="chip chip-blue">② 품목코드 우선 매칭 (관리 C열 ↔ ERP F열)</span>
-    <span class="chip chip-purple">③ 코드 미매칭 시 품명 재매칭 (관리 E열 ↔ ERP G열)</span>
-    <span class="chip chip-blue">④ 수량 비교 (관리 J열 ↔ ERP H열)</span>
+    <span class="chip chip-purple">③ 코드 미매칭 시 품명 재매칭 (E열 ↔ G열)</span>
+    <span class="chip chip-blue">④ 수량 비교 (관리 J열 ↔ ERP I열)</span>
+  </div>
+
+  <div class="amount-section" id="amountSection">
+    <h3>💰 ERP 품목구분별 금액 합계 (B열 기준 / K열 금액)</h3>
+    <div class="amount-grid">
+      <div class="ac ac-p">
+        <div class="lbl">🟦 제품</div>
+        <div class="val" id="amtProduct">-</div>
+        <div class="cnt" id="cntProduct"></div>
+      </div>
+      <div class="ac ac-r">
+        <div class="lbl">🟩 원재료</div>
+        <div class="val" id="amtRaw">-</div>
+        <div class="cnt" id="cntRaw"></div>
+      </div>
+      <div class="ac ac-s">
+        <div class="lbl">🟨 부재료</div>
+        <div class="val" id="amtSub">-</div>
+        <div class="cnt" id="cntSub"></div>
+      </div>
+      <div class="ac-total">
+        <span class="tl">전체 합계</span>
+        <span class="tv" id="amtTotal">-</span>
+      </div>
+    </div>
   </div>
 
   <div class="summary-grid" id="summaryGrid">
@@ -156,7 +183,7 @@
 
   <div class="filter-bar" id="filterBar">
     <input type="text" id="searchInput" placeholder="🔍 품목코드 또는 품명 검색..." oninput="renderTable()">
-    <button class="reset-btn" onclick="resetApp()">↩ 다시 업로드</button>
+    <button class="reset-btn" onclick="resetErp()">↩ 다시 업로드</button>
     <button class="export-btn" onclick="exportCSV()">📥 CSV 내보내기</button>
   </div>
 
@@ -174,189 +201,249 @@
 </div>
 
 <script>
-// PWA Service Worker 등록
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
-}
+const MGMT_RAW = [{"code": "SP100", "name": "[Main Body] SYNERJET PRO Main Body", "qty": 1}, {"code": "SJ02999", "name": "[H/P] SJ Micro Jet Handpiece", "qty": 10}, {"code": "GT02999", "name": "[H/P] GT/ND PS H/P(W) (PLASMA HANDPIECE)", "qty": 5}, {"code": "FA19313", "name": "[Cartridge] FL Advanced Cartridge FLC A1.5 24,000Shot", "qty": 1}, {"code": "FA29323", "name": "[Cartridge] FL Advanced Cartridge FLC A2.0 24,000shot", "qty": 1}, {"code": "FA39333", "name": "[Cartridge] FL Advanced Cartridge FLC A3.0 24,000shot", "qty": 1}, {"code": "FA49343", "name": "[Cartridge] FL Advanced Cartridge FLC A4.5 24,000shot", "qty": 1}, {"code": "FA69353", "name": "[Cartridge] FL Advanced Cartridge FLC A6.0 24,000shot", "qty": 1}, {"code": "FA99363", "name": "[Cartridge] FL Advanced Cartridge FLC A9.0 24,000shot", "qty": 1}, {"code": "SN19513", "name": "[Cartridge] SD Cartridge SDC P1.5 240,000dot", "qty": 1}, {"code": "SN39523", "name": "[Cartridge] SD Cartridge SDC P3.0 240,000dot", "qty": 1}, {"code": "SN49533", "name": "[Cartridge] SD Cartridge SDC P4.5 240,000dot", "qty": 1}, {"code": "SN99543", "name": "[Cartridge] SD Cartridge SDC P9.0 240,000dot", "qty": 1}, {"code": "ND01113", "name": "MPU Board", "qty": 1}, {"code": "ND01112", "name": "RF 2M Board", "qty": 1}, {"code": "ND01111", "name": "HIFU DC Convert Board", "qty": 1}, {"code": "ND01105B", "name": "HIFU Drive Board", "qty": 1}, {"code": "SK100", "name": "[Main Body] SILKRO Main Body", "qty": 1}, {"code": "GT06999C", "name": "[H/P] GT RV H/P (RF VAGINAL HANDPIECE)", "qty": 1}, {"code": "GT04999C", "name": "[H/P] GT/ND/VR RM H/P (RF Microneedle Handpiece)", "qty": 1}, {"code": "PH100C", "name": "[Main body] PH MAIN BODY", "qty": 1}, {"code": "SJ100", "name": "[Main Body] SYNERJET Main Body", "qty": 1}, {"code": "GT04999", "name": "[H/P] GT/ND PS H/P(W) (PLASMA HANDPIECE)", "qty": 1}, {"code": "VR100C", "name": "[Main Body] V-RO Main Body", "qty": 1}, {"code": "ND200", "name": "[Main Body] New Doublo 2.0 Main Body", "qty": 1}, {"code": "PH02999B", "name": "[ACC] PICO ARM", "qty": 2}, {"code": "PI-01000", "name": "Alice-PS Series Laser Head\n(제조일 : 2019.10.13)", "qty": 2}, {"code": "PH01101", "name": "Alice-PS Series PSU\n(제조일 : 2019.10.13)", "qty": 2}, {"code": "FN39332", "name": "[Cartridge] FL Cartridge FLC N3.0 22,000shot (구형)", "qty": 4}, {"code": "FN39332B", "name": "[Cartridge] FL Cartridge FLC N3.0 22,000shot (신형)", "qty": 7}, {"code": "FS19312", "name": "[Cartridge] FL Cartridge FLC S1.5 22,000shot", "qty": 4}, {"code": "FS19312B", "name": "[Cartridge] FL Cartridge FLC S1.5 22,000shot", "qty": 9}, {"code": "FS29322", "name": "[Cartridge] FL Cartridge FLC S2.0 22,000shot", "qty": 3}, {"code": "FS29322B", "name": "[Cartridge] FL Cartridge FLC S2.0 22,000shot", "qty": 9}, {"code": "FW69352", "name": "[Cartridge] FL Cartridge FLC W6.0 22,000shot (구형)", "qty": 3}, {"code": "FW69352B", "name": "[Cartridge] FL Cartridge FLC W6.0 22,000shot (신형)", "qty": 9}, {"code": "DM13999", "name": "[Cartridge] DM Cartridge 13.0 4A 25mm", "qty": 1}, {"code": "DM15999", "name": "[Cartridge] DM Cartridge 1.5 7A 20mm", "qty": 1}, {"code": "DM30999", "name": "[Cartridge] DM Cartridge 3.0 7A 20mm", "qty": 1}, {"code": "DM45999", "name": "[Cartridge] DM Cartridge 4.5 7A 20mm", "qty": 1}, {"code": "DM80999", "name": "[Cartridge] DM Cartridge 8.0 4A 25mm", "qty": 1}, {"code": "FW99362", "name": "[Cartridge] FL Cartridge FLC W9.0 22,000shot", "qty": 4}, {"code": "FW99362B", "name": "[Cartridge] FL Cartridge FLC W9.0 22,000shot", "qty": 9}, {"code": "S773502B", "name": "[Cartridge] S7(DBC) Cartridge (12,000 22,000) S", "qty": 1}, {"code": "S783503", "name": "[Cartridge] S7(DGC) Cartridge (12,000) S (White)", "qty": 1}, {"code": "S783503B", "name": "[Cartridge] S7(DGC) Cartridge (12,000 22,000) S (White)", "qty": 3}, {"code": "M773102B", "name": "[Cartridge] M7(DBC) Cartridge(12,000 22,000) S", "qty": 1}, {"code": "M783103", "name": "[Cartridge] M7(DGC) Cartridge(12,000) S (White)", "qty": 1}, {"code": "M783103B", "name": "[Cartridge] M7(DGC) Cartridge(12,000 22,000) S (White)", "qty": 1}, {"code": "D473202B", "name": "[Cartridge] D4(DBC) Cartridge(12,000 22,000) S", "qty": 1}, {"code": "D483203", "name": "[Cartridge] D4(DGC) Cartridge(12,000) S (White)", "qty": 1}, {"code": "D483203B", "name": "[Cartridge] D4(DGC) Cartridge(12,000 22,000) S (White)", "qty": 2}, {"code": "D773302", "name": "[Cartridge] D7(DBC) Cartridge(10,000 12,000) S", "qty": 1}, {"code": "D773302B", "name": "[Cartridge] D7(DBC) Cartridge(12,000 22,000) S", "qty": 1}, {"code": "D783303", "name": "[Cartridge] D7(DGC) Cartridge(12,000) S (White)", "qty": 1}, {"code": "D783303B", "name": "[Cartridge] D7(DGC) Cartridge(12,000 22,000) S (White)", "qty": 1}, {"code": "DV30999", "name": "[Cartridge] UV/DV Cartridge M3.0 (10,000) S", "qty": 3}, {"code": "SL19511", "name": "[Cartridge] SD Cartridge SDC L1.5 120,000dot", "qty": 2}, {"code": "SN19512", "name": "[Cartridge] SD Cartridge SDC P1.5 220,000dot", "qty": 6}, {"code": "SN19512B", "name": "[Cartridge] SD Cartridge SDC P1.5 220,000dot", "qty": 4}, {"code": "SN39522", "name": "[Cartridge] SD Cartridge SDC P3.0 220,000dot", "qty": 6}, {"code": "SN39522B", "name": "[Cartridge] SD Cartridge SDC P3.0 220,000dot", "qty": 4}, {"code": "SN99542", "name": "[Cartridge] SD Cartridge SDC P9.0 220,000dot", "qty": 7}, {"code": "SN49532B", "name": "[Cartridge] SD Cartridge SDC P4.5 220,000dot", "qty": 3}, {"code": "ND01102", "name": "SMPS", "qty": 2}, {"code": "ND01108", "name": "DC Fan with Harness", "qty": 2}, {"code": "CR02100", "name": "● UV/DV Cartridge Transformer", "qty": 4}, {"code": "GT01103", "name": "NOISE FILTER", "qty": 5}, {"code": "GT01105", "name": "GT/ND SMPS 12V", "qty": 5}, {"code": "CR01015C", "name": "Cartridge Bellows (EPDM)", "qty": 168}, {"code": "DV07015B", "name": "● UV/DV Cartridge Bellows", "qty": 30}, {"code": "GT01100", "name": "AC INNET", "qty": 11}, {"code": "GT01101", "name": "AC INNET FUSE HOLDER", "qty": 10}, {"code": "GT01102", "name": "● AC INNET FUSE", "qty": 8}, {"code": "GT01104", "name": "POWER SWITCH", "qty": 5}, {"code": "ND01104", "name": "Power Supply SW Harness", "qty": 11}, {"code": "GT05999B", "name": "[H/P] GT RN H/P (RF NEEDLE HAND PIECE)", "qty": 2}, {"code": "ND02999", "name": "[H/P] ND/VR FL H/P (Focused ultrasound Linear Handpiece)", "qty": 3}, {"code": "ND03999", "name": "[H/P] ND/VR/EG SD H/P (Synergy Dotting Handpiece)", "qty": 2}, {"code": "GT01007", "name": "SMALL COVER", "qty": 6}, {"code": "GT01008", "name": "USB COVER", "qty": 4}, {"code": "PH06804", "name": "[H/P] 650 DYE H/P sensor module", "qty": 3}, {"code": "PH06995B", "name": "[H/P] PH DOE 532 H/P (532nm, Diffractive Optical Element Handpiece)", "qty": 1}, {"code": "ALL01001", "name": "Foot Switch (NEW)", "qty": 8}, {"code": "ALL01001C", "name": "Foot S/W (NEW) IP68", "qty": 3}, {"code": "DG03999", "name": "[ACC] DG Foot Switch (25pin) (O)", "qty": 1}, {"code": "GT02116", "name": "FOOT S/W CABLE", "qty": 5}, {"code": "DB03100", "name": "DG FOOT S/W BASE (White)", "qty": 4}, {"code": "DB03101", "name": "DG Foot S/W Plate (GRAY)", "qty": 4}, {"code": "AF04102", "name": "[ACC] AF/GT GROUND PAD", "qty": 2}, {"code": "ALL-01-129", "name": "[ACC] POWER CABLE(3m)", "qty": 6}, {"code": "GT01108", "name": "RF AMP BOARD", "qty": 1}, {"code": "ND01103", "name": "MAIN CONTROL BOARD", "qty": 1}, {"code": "GT01111", "name": "LCD & TOUCH AFFIX", "qty": 2}, {"code": "GT01220", "name": "LCD REAR PLATE", "qty": 3}, {"code": "PH01129", "name": "LCD & TOUCH AFFIX", "qty": 6}, {"code": "GT01218", "name": "HP HOLDER INNER BKT", "qty": 4}, {"code": "GT01226", "name": "SPACER", "qty": 6}, {"code": "GT01400", "name": "HINGE PINS", "qty": 3}, {"code": "GT01401", "name": "FLAT HEADED BOLT", "qty": 3}, {"code": "GT01404", "name": "GT AIR VENT FILTER", "qty": 12}, {"code": "SU9001", "name": "[SET] SLIMUS Full Set (O)", "qty": 1}, {"code": "GT02801", "name": "[Tip] PST(W) (PLASMA TIP FOR GT, WHITE TIP 1EA, COVER 1EA)", "qty": 1}, {"code": "VR200", "name": "[Main Body] V-RO 2.0 Main Body", "qty": 1}, {"code": "PN100B", "name": "[Main Body] PN Main Body (제품)", "qty": 2}, {"code": "AZ100B", "name": "[Main Body] ArcZero Main Body", "qty": 2}, {"code": "IL100", "name": "[Main Body] Innolif Main Body", "qty": 2}, {"code": "IL02999", "name": "[Cartridge] INNOLIF Cartridge", "qty": 3}, {"code": "HT100", "name": "[Main Body] UltraLif Body Homethera Main Body", "qty": 2}, {"code": "HT30300", "name": "[Cartridge] UltraLif Cartridge Homethera", "qty": 5}, {"code": "HT40300", "name": "[Cartridge] UltraLif Cartridge Homethera 4.5", "qty": 2}, {"code": "UL02999B", "name": "[ACC] UltraLif Cradle", "qty": 2}];
+const mgmtMap = new Map();
+MGMT_RAW.forEach(function(item) {
+  var key = item.code ? item.code.trim() : item.name.toLowerCase().trim();
+  if (!mgmtMap.has(key)) mgmtMap.set(key, Object.assign({}, item, {qty: 0}));
+  mgmtMap.get(key).qty += item.qty;
+});
 
-let workbook = null, allResults = [], currentFilter = 'all';
-const uploadZone = document.getElementById('uploadZone');
-const fileInput  = document.getElementById('fileInput');
+var erpData = null;
+var allResults = [];
+var currentFilter = 'all';
 
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
-uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f) processFile(f); });
-fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
-
-function processFile(file) {
+// 파일 처리 함수
+function processErp(file) {
   showError('');
-  const reader = new FileReader();
-  reader.onload = e => {
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(evt) {
     try {
-      workbook = XLSX.read(e.target.result, { type: 'binary' });
-      const sheets = workbook.SheetNames;
-      const dateSheets = sheets.filter(s => !(/장비/i.test(s)) && /_\d{6}$/.test(s));
-      dateSheets.sort((a,b) => parseInt(b.match(/_(\d{6})$/)?.[1]||0) - parseInt(a.match(/_(\d{6})$/)?.[1]||0));
-      const erpSheets = sheets.filter(s => s.includes('비교') || s.toLowerCase().includes('erp'));
-      const mgmtSel = document.getElementById('mgmtSheet');
-      const erpSel  = document.getElementById('erpSheet');
-      mgmtSel.innerHTML = sheets.map(s=>`<option value="${s}">${s}</option>`).join('');
-      erpSel.innerHTML  = sheets.map(s=>`<option value="${s}">${s}</option>`).join('');
-      if (dateSheets.length) mgmtSel.value = dateSheets[0];
-      if (erpSheets.length)  erpSel.value  = erpSheets[0];
-      uploadZone.classList.add('loaded');
-      document.getElementById('uploadIcon').textContent  = '✅';
-      document.getElementById('uploadTitle').textContent = file.name;
-      document.getElementById('uploadDesc').textContent  = `시트 ${sheets.length}개 감지됨`;
-      document.getElementById('fileLoaded').textContent  = `누적관리: "${mgmtSel.value}" / ERP: "${erpSel.value}" 자동 선택됨`;
-      document.getElementById('sheetConfig').style.display = 'block';
-      document.getElementById('runBtn').style.display      = 'block';
-    } catch(err) { showError('파일 읽기 오류: ' + err.message); }
+      var wb = XLSX.read(evt.target.result, {type: 'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, {header: 1, defval: ''});
+
+      // 헤더 행 자동 감지
+      var dataStart = 2;
+      for (var i = 0; i < Math.min(rows.length, 10); i++) {
+        var joined = rows[i].map(function(v) { return String(v||'').trim().toLowerCase(); }).join('||');
+        if (joined.indexOf('no') >= 0 && joined.indexOf('품목') >= 0) {
+          dataStart = i + 1;
+          break;
+        }
+      }
+
+      var byCode = new Map();
+      var amtByType = {'제품': 0, '원재료': 0, '부재료': 0, '기타': 0};
+      var cntByType = {'제품': 0, '원재료': 0, '부재료': 0, '기타': 0};
+      var parsedCount = 0;
+
+      for (var i = dataStart; i < rows.length; i++) {
+        var c = rows[i];
+        var no = String(c[0] || '').trim();
+        if (!no || isNaN(parseInt(no))) continue;
+
+        // A(0)=NO, B(1)=품목구분, F(5)=품목코드, G(6)=품목명, I(8)=수량, K(10)=금액
+        var typeRaw = String(c[1] || '').replace(/\[/g,'').replace(/\]/g,'').trim();
+        var code    = String(c[5] || '').trim();
+        var name    = String(c[6] || '').trim();
+        var qty     = parseInt(String(c[8] || '0').replace(/,/g,'')) || 0;
+        var amt     = parseFloat(String(c[10] || '0').replace(/,/g,'')) || 0;
+
+        if (!name) continue;
+        parsedCount++;
+
+        var tk = '기타';
+        if (typeRaw.indexOf('제품') >= 0)    tk = '제품';
+        else if (typeRaw.indexOf('원재료') >= 0) tk = '원재료';
+        else if (typeRaw.indexOf('부재료') >= 0) tk = '부재료';
+
+        amtByType[tk] += amt;
+        cntByType[tk]++;
+
+        var key = code || name.toLowerCase().trim();
+        if (!byCode.has(key)) byCode.set(key, {code: code, name: name, qty: 0, type: tk});
+        byCode.get(key).qty += qty;
+      }
+
+      if (parsedCount === 0) {
+        showError('파일에서 데이터를 읽지 못했습니다. 파일 형식을 확인해 주세요.');
+        return;
+      }
+
+      erpData = {byCode: byCode, amtByType: amtByType, cntByType: cntByType};
+
+      dropZone.classList.add('loaded');
+      document.getElementById('dropIcon').textContent = '✅';
+      document.getElementById('dropText').textContent = file.name;
+      document.getElementById('dropFname').textContent = parsedCount + '개 항목 로드 완료';
+      document.getElementById('runBtn').disabled = false;
+
+    } catch(err) {
+      showError('파일 읽기 오류: ' + err.message);
+    }
   };
   reader.readAsBinaryString(file);
 }
 
-function cellVal(sheet, row, col) {
-  const cell = sheet[XLSX.utils.encode_cell({r: row-1, c: col-1})];
-  return cell ? String(cell.v ?? '') : '';
-}
-function getRange(sheet) {
-  return sheet['!ref'] ? XLSX.utils.decode_range(sheet['!ref']) : {s:{r:0,c:0},e:{r:0,c:0}};
-}
+// 드래그 앤 드롭 + 클릭 업로드
+var dropZone = document.getElementById('dropZone');
+var erpFileInput = document.getElementById('erpFile');
+
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.style.borderColor='#2563EB'; dropZone.style.background='#EFF6FF'; });
+dropZone.addEventListener('dragleave', function() { dropZone.style.borderColor=''; dropZone.style.background=''; });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.style.borderColor=''; dropZone.style.background='';
+  var f = e.dataTransfer.files[0];
+  if (f) processErp(f);
+});
+erpFileInput.addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) processErp(e.target.files[0]);
+});
 
 function runCompare() {
   showError('');
-  const mgmtWS = workbook.Sheets[document.getElementById('mgmtSheet').value];
-  const erpWS  = workbook.Sheets[document.getElementById('erpSheet').value];
-  try {
-    const mgmtByCode = {}, erpByCode = {};
-    const mgmtRange = getRange(mgmtWS);
-    const erpRange  = getRange(erpWS);
+  if (!erpData) return;
 
-    for (let r = 8; r <= mgmtRange.e.r+1; r++) {
-      const no = cellVal(mgmtWS,r,2); if (!no||isNaN(parseFloat(no))) continue;
-      if (cellVal(mgmtWS,r,7).trim().toUpperCase() !== 'O') continue;
-      const code = cellVal(mgmtWS,r,3).trim();
-      const name = cellVal(mgmtWS,r,5).trim();
-      const qty  = parseInt(parseFloat(cellVal(mgmtWS,r,10))||0);
-      if (!code||!name) continue;
-      if (!mgmtByCode[code]) mgmtByCode[code]={name,qty:0};
-      mgmtByCode[code].qty += qty;
+  var erpMap    = erpData.byCode;
+  var amtByType = erpData.amtByType;
+  var cntByType = erpData.cntByType;
+
+  var fmt = function(v) { return v.toLocaleString('ko-KR') + '원'; };
+  document.getElementById('amtProduct').textContent = fmt(amtByType['제품']);
+  document.getElementById('amtRaw').textContent     = fmt(amtByType['원재료']);
+  document.getElementById('amtSub').textContent     = fmt(amtByType['부재료']);
+  document.getElementById('cntProduct').textContent = cntByType['제품'] + '건';
+  document.getElementById('cntRaw').textContent     = cntByType['원재료'] + '건';
+  document.getElementById('cntSub').textContent     = cntByType['부재료'] + '건';
+  var total = amtByType['제품'] + amtByType['원재료'] + amtByType['부재료'] + amtByType['기타'];
+  document.getElementById('amtTotal').textContent   = fmt(total);
+  document.getElementById('amountSection').style.display = 'block';
+
+  var results = [];
+  var allKeys = new Set([].concat(Array.from(mgmtMap.keys()), Array.from(erpMap.keys())));
+
+  allKeys.forEach(function(key) {
+    var m = mgmtMap.get(key);
+    var e = erpMap.get(key);
+    var mQty = m ? m.qty : null;
+    var eQty = e ? e.qty : null;
+    var status = mQty === null ? 'erp_only' : eQty === null ? 'mgmt_only' : mQty === eQty ? 'same' : 'diff';
+    var diff   = (mQty !== null && eQty !== null) ? eQty - mQty : null;
+    results.push({code:(m||e).code||key, name:(m||e).name, mgmt:mQty, erp:eQty, diff:diff, status:status, match_type:'code'});
+  });
+
+  var norm = function(s) { return String(s||'').replace(/\s+/g,' ').trim().toLowerCase(); };
+  var unmE = results.filter(function(r) { return r.status === 'erp_only'; });
+  var unmM = results.filter(function(r) { return r.status === 'mgmt_only'; });
+  var eNM = {}, mNM = {};
+  unmE.forEach(function(r) { eNM[norm(r.name)] = r; });
+  unmM.forEach(function(r) { mNM[norm(r.name)] = r; });
+  var nuE = new Set(), nuM = new Set(), nm = [];
+  Object.keys(eNM).forEach(function(n) {
+    if (mNM[n]) {
+      var eR = eNM[n], mR = mNM[n];
+      nm.push({code:(mR.code||'?')+'/'+(eR.code||'?'), name:eR.name, mgmt:mR.mgmt, erp:eR.erp, diff:eR.erp-mR.mgmt, status:mR.mgmt===eR.erp?'same':'diff', match_type:'name'});
+      nuE.add(norm(eR.name)); nuM.add(norm(mR.name));
     }
-    for (let r = 3; r <= erpRange.e.r+1; r++) {
-      const no = cellVal(erpWS,r,1); if (!no||isNaN(parseFloat(no))) continue;
-      const code = cellVal(erpWS,r,6).trim();
-      const name = cellVal(erpWS,r,7).trim();
-      const qty  = parseInt(parseFloat(cellVal(erpWS,r,8))||0);
-      if (!code||!name) continue;
-      if (!erpByCode[code]) erpByCode[code]={name,qty:0};
-      erpByCode[code].qty += qty;
-    }
+  });
 
-    if (!Object.keys(mgmtByCode).length) { showError('누적관리 시트에서 ERP등록(O) 항목을 찾지 못했습니다. 시트 선택을 확인해 주세요.'); return; }
-    if (!Object.keys(erpByCode).length)  { showError('ERP 시트에서 데이터를 찾지 못했습니다. 시트 선택을 확인해 주세요.'); return; }
+  var order = {diff:0, erp_only:1, mgmt_only:2, same:3};
+  allResults = results.filter(function(r) {
+    return !(r.status==='erp_only' && nuE.has(norm(r.name))) && !(r.status==='mgmt_only' && nuM.has(norm(r.name)));
+  }).concat(nm).sort(function(a,b) { return order[a.status]-order[b.status]; });
 
-    const results = [];
-    const usedM = new Set(), usedE = new Set();
-    for (const code of new Set([...Object.keys(mgmtByCode),...Object.keys(erpByCode)])) {
-      const m=mgmtByCode[code], e=erpByCode[code];
-      if(m) usedM.add(code); if(e) usedE.add(code);
-      const mQ=m?m.qty:null, eQ=e?e.qty:null;
-      const status = mQ===null?'erp_only':eQ===null?'mgmt_only':mQ===eQ?'same':'diff';
-      results.push({code, name:(m||e).name, mgmt:mQ, erp:eQ, diff:(mQ!==null&&eQ!==null)?eQ-mQ:null, status, match_type:'code'});
-    }
+  document.getElementById('statTotal').textContent = allResults.length;
+  document.getElementById('statDiff').textContent  = allResults.filter(function(r){return r.status==='diff';}).length;
+  document.getElementById('statErp').textContent   = allResults.filter(function(r){return r.status==='erp_only';}).length;
+  document.getElementById('statMgmt').textContent  = allResults.filter(function(r){return r.status==='mgmt_only';}).length;
 
-    const normalize = s => s.replace(/\s+/,' ').trim().toLowerCase();
-    const unmE = results.filter(r=>r.status==='erp_only');
-    const unmM = results.filter(r=>r.status==='mgmt_only');
-    const eMap={}, mMap={};
-    unmE.forEach(r=>{ eMap[normalize(r.name)]=r; });
-    unmM.forEach(r=>{ mMap[normalize(r.name)]=r; });
-    const nuE=new Set(), nuM=new Set(), nameMatched=[];
-    for (const [n,eR] of Object.entries(eMap)) {
-      if (mMap[n]) {
-        const mR=mMap[n], mQ=mR.mgmt, eQ=eR.erp;
-        nameMatched.push({code:`${mR.code} / ${eR.code}`,name:eR.name,mgmt:mQ,erp:eQ,diff:eQ-mQ,status:mQ===eQ?'same':'diff',match_type:'name'});
-        nuE.add(eR.code); nuM.add(mR.code);
-      }
-    }
+  document.getElementById('logicBox').style.display    = 'block';
+  document.getElementById('summaryGrid').style.display = 'grid';
+  document.getElementById('filterBar').style.display   = 'flex';
+  document.getElementById('tableWrap').style.display   = 'block';
 
-    allResults = [
-      ...results.filter(r=>!(r.status==='erp_only'&&nuE.has(r.code))&&!(r.status==='mgmt_only'&&nuM.has(r.code))),
-      ...nameMatched
-    ];
-    allResults.sort((a,b)=>({'diff':0,'erp_only':1,'mgmt_only':2,'same':3}[a.status]-{'diff':0,'erp_only':1,'mgmt_only':2,'same':3}[b.status]));
-
-    document.getElementById('statTotal').textContent = allResults.length;
-    document.getElementById('statDiff').textContent  = allResults.filter(r=>r.status==='diff').length;
-    document.getElementById('statErp').textContent   = allResults.filter(r=>r.status==='erp_only').length;
-    document.getElementById('statMgmt').textContent  = allResults.filter(r=>r.status==='mgmt_only').length;
-    document.getElementById('logicBox').style.display    = 'block';
-    document.getElementById('summaryGrid').style.display = 'grid';
-    document.getElementById('filterBar').style.display   = 'flex';
-    document.getElementById('tableWrap').style.display   = 'block';
-    const diffCnt = allResults.filter(r=>r.status==='diff').length;
-    if (diffCnt>0) setFilter('diff',document.querySelector('.stat-card.red'));
-    else setFilter('all',document.querySelector('.stat-card'));
-  } catch(err) { showError('분석 오류: '+err.message); }
+  var diffCnt = allResults.filter(function(r){return r.status==='diff';}).length;
+  if (diffCnt > 0) setFilter('diff', document.querySelector('.stat-card.red'));
+  else setFilter('all', document.querySelector('.stat-card'));
 }
 
-function setFilter(f,el) {
-  currentFilter=f;
-  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('active'));
-  if(el) el.classList.add('active');
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.stat-card').forEach(function(c) { c.classList.remove('active'); });
+  if (el) el.classList.add('active');
   renderTable();
 }
 
 function renderTable() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  let rows = allResults;
-  if (currentFilter!=='all') rows=rows.filter(r=>r.status===currentFilter);
-  if (search) rows=rows.filter(r=>(r.code||'').toLowerCase().includes(search)||(r.name||'').toLowerCase().includes(search));
-  document.getElementById('tableInfo').textContent=`${rows.length}개 항목`;
-  const tbody=document.getElementById('tableBody');
-  if (!rows.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty">해당 조건의 항목이 없습니다.</div></td></tr>';return;}
-  const sm={diff:['badge-diff','🔴 수량 불일치'],erp_only:['badge-erp','🟡 ERP에만 있음'],mgmt_only:['badge-mgmt','⚪ 관리에만 있음'],same:['badge-same','🟢 일치']};
-  tbody.innerHTML=rows.map(r=>{
-    const mQ=r.mgmt!==null?r.mgmt.toLocaleString():'-';
-    const eQ=r.erp!==null?r.erp.toLocaleString():'-';
-    let dS='-';
-    if(r.diff!==null){if(r.diff===0)dS='<span style="color:var(--text3)">0</span>';else dS=`<span class="${r.diff>0?'diff-pos':'diff-neg'}">${r.diff>0?'+':''}${r.diff}</span>`;}
-    const mc=r.match_type==='name'?'<span class="match-chip match-name">품명매칭</span>':'<span class="match-chip match-code">코드매칭</span>';
-    const[bc,lbl]=sm[r.status];
-    return `<tr><td><span class="mono">${r.code}</span>${mc}</td><td><b>${r.name}</b></td><td class="qty">${mQ}</td><td class="qty">${eQ}</td><td>${dS}</td><td><span class="badge ${bc}">${lbl}</span></td></tr>`;
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var rows = allResults;
+  if (currentFilter !== 'all') rows = rows.filter(function(r) { return r.status === currentFilter; });
+  if (search) rows = rows.filter(function(r) {
+    return (r.code||'').toLowerCase().indexOf(search) >= 0 || (r.name||'').toLowerCase().indexOf(search) >= 0;
+  });
+  document.getElementById('tableInfo').textContent = rows.length + '개 항목';
+  var tbody = document.getElementById('tableBody');
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty">해당 조건의 항목이 없습니다.</div></td></tr>'; return; }
+  var sm = {diff:['badge-diff','🔴 수량 불일치'], erp_only:['badge-erp','🟡 ERP에만 있음'], mgmt_only:['badge-mgmt','⚪ 관리에만 있음'], same:['badge-same','🟢 일치']};
+  tbody.innerHTML = rows.map(function(r) {
+    var mQ = r.mgmt !== null ? r.mgmt.toLocaleString() : '-';
+    var eQ = r.erp  !== null ? r.erp.toLocaleString()  : '-';
+    var dS = '-';
+    if (r.diff !== null) {
+      if (r.diff === 0) dS = '<span style="color:var(--text3)">0</span>';
+      else dS = '<span class="' + (r.diff>0?'diff-pos':'diff-neg') + '">' + (r.diff>0?'+':'') + r.diff + '</span>';
+    }
+    var mc = r.match_type === 'name' ? '<span class="match-chip match-name">품명매칭</span>' : '<span class="match-chip match-code">코드매칭</span>';
+    var bc = sm[r.status][0], lbl = sm[r.status][1];
+    return '<tr><td><span class="mono">' + (r.code||'-') + '</span>' + mc + '</td><td><b>' + (r.name||'-') + '</b></td><td class="qty">' + mQ + '</td><td class="qty">' + eQ + '</td><td>' + dS + '</td><td><span class="badge ' + bc + '">' + lbl + '</span></td></tr>';
   }).join('');
 }
 
 function exportCSV() {
-  let rows=allResults;
-  const search=document.getElementById('searchInput').value.toLowerCase();
-  if(currentFilter!=='all') rows=rows.filter(r=>r.status===currentFilter);
-  if(search) rows=rows.filter(r=>(r.code||'').toLowerCase().includes(search)||(r.name||'').toLowerCase().includes(search));
-  const lbl={diff:'수량불일치',erp_only:'ERP에만있음',mgmt_only:'관리에만있음',same:'일치'};
-  const today=new Date().toLocaleDateString('ko-KR').replace(/\.\s*/g,'-').replace(/-$/,'');
-  const csv='\uFEFF'+['품목코드,매칭방식,품명,관리수량,ERP수량,차이,상태',...rows.map(r=>[r.code,r.match_type==='name'?'품명매칭':'코드매칭',`"${r.name}"`,r.mgmt??'',r.erp??'',r.diff!=null?(r.diff>0?'+'+r.diff:r.diff):'',lbl[r.status]].join(','))].join('\n');
-  Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),download:`재고비교_${today}.csv`}).click();
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var rows = allResults;
+  if (currentFilter !== 'all') rows = rows.filter(function(r){return r.status===currentFilter;});
+  if (search) rows = rows.filter(function(r){return (r.code||'').toLowerCase().indexOf(search)>=0||(r.name||'').toLowerCase().indexOf(search)>=0;});
+  var lbl = {diff:'수량불일치',erp_only:'ERP에만있음',mgmt_only:'관리에만있음',same:'일치'};
+  var today = new Date().toLocaleDateString('ko-KR').replace(/\.\s*/g,'-').replace(/-$/,'');
+  var csv = '﻿' + ['품목코드,매칭방식,품명,관리수량,ERP수량,차이,상태'].concat(rows.map(function(r){
+    return [r.code||'', r.match_type==='name'?'품명매칭':'코드매칭', '"'+(r.name||'')+'"', r.mgmt!=null?r.mgmt:'', r.erp!=null?r.erp:'', r.diff!=null?(r.diff>0?'+'+r.diff:r.diff):'', lbl[r.status]].join(',');
+  })).join('
+');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = '재고비교_' + today + '.csv';
+  a.click();
 }
 
-function resetApp() {
-  workbook=null;allResults=[];currentFilter='all';fileInput.value='';
-  uploadZone.classList.remove('loaded');
-  document.getElementById('uploadIcon').textContent='📂';
-  document.getElementById('uploadTitle').textContent='XLSX 파일을 끌어다 놓거나 클릭하여 선택';
-  document.getElementById('uploadDesc').textContent='구글 드라이브 → 파일 → 다운로드 → Microsoft Excel(.xlsx)';
-  document.getElementById('fileLoaded').textContent='';
-  ['sheetConfig','runBtn','logicBox','errorMsg'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById('summaryGrid').style.display='none';
-  document.getElementById('filterBar').style.display='none';
-  document.getElementById('tableWrap').style.display='none';
+function resetErp() {
+  erpData = null; allResults = []; currentFilter = 'all';
+  erpFileInput.value = '';
+  dropZone.classList.remove('loaded');
+  dropZone.style.borderColor = ''; dropZone.style.background = '';
+  document.getElementById('dropIcon').textContent = '📄';
+  document.getElementById('dropText').textContent = '클릭하거나 파일을 끌어다 놓으세요 (.xlsx / .xls / .csv)';
+  document.getElementById('dropFname').textContent = '';
+  document.getElementById('runBtn').disabled = true;
+  ['logicBox','amountSection','errorMsg'].forEach(function(id){document.getElementById(id).style.display='none';});
+  document.getElementById('summaryGrid').style.display = 'none';
+  document.getElementById('filterBar').style.display   = 'none';
+  document.getElementById('tableWrap').style.display   = 'none';
+  showError('');
 }
 
 function showError(msg) {
-  const el=document.getElementById('errorMsg');
-  el.textContent=msg;el.style.display=msg?'block':'none';
+  var el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('./sw.js').catch(function(){}); });
 }
 </script>
 </body>
