@@ -43,6 +43,19 @@ h1{font-size:20px;font-weight:800}
 .chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin:0 2px}
 .cb{background:var(--pl);color:var(--p)}
 .cp{background:var(--pul);color:var(--pu)}
+.asec{display:none;background:var(--s);border:1.5px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.asec h3{font-size:13px;font-weight:700;margin-bottom:14px}
+.agr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.ac{border-radius:10px;padding:14px 16px}
+.ac .al{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.ac .av{font-size:18px;font-weight:800;font-family:'Courier New',monospace}
+.ac .an{font-size:11px;color:var(--t3);margin-top:4px}
+.acp{background:#EFF6FF;border:1.5px solid #BFDBFE}.acp .av{color:#1D4ED8}
+.acr{background:#F0FDF4;border:1.5px solid #BBF7D0}.acr .av{color:#15803D}
+.acs{background:#FEF9C3;border:1.5px solid #FDE68A}.acs .av{color:#92400E}
+.atot{background:var(--s2);border:1.5px solid var(--bd);grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:10px}
+.atot .tl{font-size:13px;font-weight:700}
+.atot .tv{font-size:20px;font-weight:800;font-family:'Courier New',monospace;color:var(--p)}
 .sgr{display:none;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
 .sc{background:var(--s);border:1.5px solid var(--bd);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s}
 .sc:hover{border-color:var(--p);transform:translateY(-1px)}
@@ -107,7 +120,8 @@ tr:hover td{background:var(--s2)}
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
     <div class="hint">
       ERP 파일 컬럼 &nbsp;→&nbsp;
-      <b>F</b>: 품목코드 &nbsp;|&nbsp; <b>G</b>: 품목명 &nbsp;|&nbsp; <b>I</b>: 수량
+      <b>B</b>: 품목구분 &nbsp;|&nbsp; <b>F</b>: 품목코드 &nbsp;|&nbsp;
+      <b>G</b>: 품목명 &nbsp;|&nbsp; <b>I</b>: 수량 &nbsp;|&nbsp; <b>K</b>: 금액
     </div>
   </div>
 
@@ -119,6 +133,16 @@ tr:hover td{background:var(--s2)}
     <span class="chip cb">① 품목코드 우선 매칭</span>
     <span class="chip cp">② 코드 미매칭 시 품명 재매칭(더블체크)</span>
     <span class="chip cb">③ 수량 비교 (관리 H열 ↔ ERP I열)</span>
+  </div>
+
+  <div class="asec" id="asec">
+    <h3>💰 ERP 품목구분별 금액 합계 (B열 / K열)</h3>
+    <div class="agr">
+      <div class="ac acp"><div class="al">🟦 제품</div><div class="av" id="ap">-</div><div class="an" id="apc"></div></div>
+      <div class="ac acr"><div class="al">🟩 원재료</div><div class="av" id="ar">-</div><div class="an" id="arc"></div></div>
+      <div class="ac acs"><div class="al">🟨 부재료</div><div class="av" id="as2">-</div><div class="an" id="asc"></div></div>
+      <div class="atot"><span class="tl">전체 합계</span><span class="tv" id="at">-</span></div>
+    </div>
   </div>
 
   <div class="sgr" id="sgr">
@@ -202,7 +226,6 @@ function handleFile(file) {
       var ws   = wb.Sheets[wb.SheetNames[0]];
       var rows = XLSX.utils.sheet_to_json(ws, {header: 1, defval: ''});
 
-      // 헤더 행 자동 감지: NO + 품목 키워드가 같은 행에 있으면 다음 행부터 데이터
       var dataStart = 2;
       for (var i = 0; i < Math.min(rows.length, 10); i++) {
         var line = '';
@@ -214,19 +237,29 @@ function handleFile(file) {
       }
 
       var byCode = {};
-      var total = 0;
+      var amt    = {'제품': 0, '원재료': 0, '부재료': 0, '기타': 0};
+      var cnt    = {'제품': 0, '원재료': 0, '부재료': 0, '기타': 0};
+      var total  = 0;
 
       for (var i = dataStart; i < rows.length; i++) {
-        var c = rows[i];
+        var c  = rows[i];
         var no = String(c[0] || '').trim();
         if (!no || isNaN(parseInt(no, 10))) continue;
 
-        // F열(5)=품목코드, G열(6)=품목명, I열(8)=수량
+        // B열(1)=품목구분, F열(5)=품목코드, G열(6)=품목명, I열(8)=수량, K열(10)=금액
+        var type = String(c[1] || '').replace('[', '').replace(']', '').trim();
         var code = String(c[5] || '').trim();
         var name = String(c[6] || '').trim();
-        var qty  = parseInt(String(c[8] || '0').replace(/,/g, ''), 10) || 0;
+        var qty  = parseInt(String(c[8]  || '0').replace(/,/g, ''), 10) || 0;
+        var amtv = parseFloat(String(c[10] || '0').replace(/,/g, ''))    || 0;
         if (!name) continue;
         total++;
+
+        var tk = type.indexOf('제품') >= 0 ? '제품'
+               : type.indexOf('원재료') >= 0 ? '원재료'
+               : type.indexOf('부재료') >= 0 ? '부재료' : '기타';
+        amt[tk] += amtv;
+        cnt[tk]++;
 
         var k = code || name.toLowerCase().trim();
         if (!byCode[k]) byCode[k] = {code: code, name: name, qty: 0};
@@ -235,7 +268,7 @@ function handleFile(file) {
 
       if (total === 0) { showErr('데이터를 읽지 못했습니다. 파일을 확인해 주세요.'); return; }
 
-      erpData = {byCode: byCode};
+      erpData = {byCode: byCode, amt: amt, cnt: cnt};
 
       uploadArea.classList.add('active');
       document.getElementById('ico').textContent  = '✅';
@@ -254,6 +287,17 @@ function handleFile(file) {
 function runCompare() {
   if (!erpData) return;
   showErr('');
+
+  var fmt = function(v) { return Number(v).toLocaleString('ko-KR') + '원'; };
+  document.getElementById('ap').textContent   = fmt(erpData.amt['제품']);
+  document.getElementById('ar').textContent   = fmt(erpData.amt['원재료']);
+  document.getElementById('as2').textContent  = fmt(erpData.amt['부재료']);
+  document.getElementById('apc').textContent  = erpData.cnt['제품']    + '건';
+  document.getElementById('arc').textContent  = erpData.cnt['원재료']  + '건';
+  document.getElementById('asc').textContent  = erpData.cnt['부재료']  + '건';
+  var tot = erpData.amt['제품'] + erpData.amt['원재료'] + erpData.amt['부재료'] + erpData.amt['기타'];
+  document.getElementById('at').textContent   = fmt(tot);
+  document.getElementById('asec').style.display = 'block';
 
   var em = erpData.byCode;
   var allK = {};
@@ -401,7 +445,7 @@ function resetAll() {
   document.getElementById('dtxt').textContent = '클릭하거나 파일을 끌어다 놓으세요';
   document.getElementById('fn').textContent   = '';
   document.getElementById('run').disabled     = true;
-  var hide = ['lbox','errBox'];
+  var hide = ['lbox','asec','errBox'];
   for (var i = 0; i < hide.length; i++) document.getElementById(hide[i]).style.display = 'none';
   document.getElementById('sgr').style.display = 'none';
   document.getElementById('fb').style.display  = 'none';
